@@ -3,10 +3,14 @@ package com.example.posbanco.services;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.example.posbanco.model.Product;
+import com.example.posbanco.repository.ProductRepository;
 import com.example.posbanco.repository.ProductRepositoryOld;
+import com.example.posbanco.shared.ProductDTO;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,14 +18,15 @@ import org.springframework.stereotype.Service;
 public class ProductService {
 
     @Autowired
-    private ProductRepositoryOld productRepository;
+    private ProductRepository productRepository;
 
     /**
      * This method returns a list of products inserted in the "db"
      */
-    public List<Product> getProducts(){
+    public List<ProductDTO> getProducts(){ //Here we are trying to get a new type of product to use in requests and responses
         //here goes the business rules
-        return productRepository.getProducts();
+        List<Product> products = productRepository.findAll();  //Now we get all the products into other list to cast it 
+        return products.stream().map(product -> new ModelMapper().map(product, ProductDTO.class)).collect(Collectors.toList());
     }
 
     /**
@@ -29,12 +34,16 @@ public class ProductService {
      * @param id the product id to be find
      * @return the product if it's in the array
      */
-    public Optional<Product> getProductById(Integer id){
+    public Optional<ProductDTO> getProductById(Integer id){
         //here goes the business rules
-        if( id.equals(null)){
-            throw new InputMismatchException("ID not valid");
+        Optional<Product> product = productRepository.findById(id);    
+        
+        if(product.isEmpty()){
+            throw new InputMismatchException("Product not found!");
         }
-        return  productRepository.getProductById(id);     
+
+        ProductDTO dto = new ModelMapper().map(product.get(), ProductDTO.class);
+        return  Optional.of(dto);
     }
 
     /**
@@ -42,8 +51,8 @@ public class ProductService {
      * @param product is the newest product added
      * @return the product itself
      */
-    public Product addProduct(Product product){
-        return productRepository.addProduct(product);
+    public ProductDTO addProduct(ProductDTO product){
+        return productRepository.save(product);
     }
 
     /**
@@ -51,7 +60,7 @@ public class ProductService {
          * @param id 
          */
     public void deleteProduct(Integer id){
-        productRepository.deleteProduct(id);        
+        productRepository.deleteById(id);        
     }
 
     /**
@@ -59,9 +68,9 @@ public class ProductService {
      * @param product the new product
      * @return the product that was added
      */
-    public Product updateProduct(Product product, Integer id){
+    public ProductDTO updateProduct(ProductDTO product, Integer id){
         product.setId(id);
-        return productRepository.updateProduct(product);
+        return productRepository.save(product);
     }    
     
 }

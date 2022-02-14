@@ -1,4 +1,4 @@
-package com.example.posbanco.controller;
+package com.example.posbanco.view.controller;
 
 import java.lang.StackWalker.Option;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.example.posbanco.model.Person;
 import com.example.posbanco.services.PersonService;
+import com.example.posbanco.shared.PersonDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,7 +30,7 @@ public class PersonController {
      * @return
      */
     @GetMapping
-    public List<Person> getPersons(){
+    public List<PersonDTO> getPersons(){
         return personService.getPersons();
     }
 
@@ -39,7 +40,7 @@ public class PersonController {
      * @return
      */
     @GetMapping("/{id}")
-    public Optional<Person> getPersonById(@PathVariable Integer id){
+    public Optional<PersonDTO> getPersonById(@PathVariable Integer id){
         return personService.getPersonById(id);
     }
 
@@ -49,7 +50,7 @@ public class PersonController {
      * @return
      */
     @PostMapping
-    public Person addPerson(@RequestBody Person person){
+    public PersonDTO addPerson(@RequestBody Person person){
         return personService.addPerson(person);
     }
 
@@ -69,7 +70,7 @@ public class PersonController {
      * @return person updated
      */
     @PutMapping("/{id}")
-    public Person uptadePerson(@RequestBody Person person, @PathVariable Integer id){
+    public PersonDTO uptadePerson(@RequestBody Person person, @PathVariable Integer id){
         return personService.uptadePerson(person, id);
     }
     

@@ -1,4 +1,4 @@
-package com.example.posbanco.controller;
+package com.example.posbanco.view.controller;
 
 import java.util.List;
 import java.util.Optional;
