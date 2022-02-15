@@ -9,7 +9,9 @@ import com.example.posbanco.model.Person;
 import com.example.posbanco.model.exception.ResourceNotFound;
 import com.example.posbanco.services.PersonService;
 import com.example.posbanco.shared.PersonDTO;
+import com.example.posbanco.view.model.PersonRequest;
 import com.example.posbanco.view.model.PersonResponse;
+import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,8 +64,12 @@ public class PersonController {
      * @return
      */
     @PostMapping
-    public PersonDTO addPerson(@RequestBody Person person){
-        return personService.addPerson(person);
+    public ResponseEntity<PersonResponse> addPerson(@RequestBody PersonRequest personReq){
+        ModelMapper mapper = new ModelMapper();
+        PersonDTO dto = mapper.map(personReq, PersonDTO.class);
+        dto = personService.addPerson(dto);
+
+        return new ResponseEntity<>(mapper.map(dto, PersonResponse.class), HttpStatus.CREATED);
     }
 
     /**
@@ -71,8 +77,9 @@ public class PersonController {
      * @param id
      */
     @DeleteMapping("/{id}")
-    public void deletePerson(@PathVariable Integer id){
+    public ResponseEntity<?> deletePerson(@PathVariable Integer id){
         personService.deletePerson(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     /**
@@ -82,8 +89,13 @@ public class PersonController {
      * @return person updated
      */
     @PutMapping("/{id}")
-    public PersonDTO uptadePerson(@RequestBody Person person, @PathVariable Integer id){
-        return personService.uptadePerson(person, id);
+    public ResponseEntity<PersonResponse> uptadePerson(@RequestBody PersonRequest person, @PathVariable Integer id){ 
+        
+        ModelMapper mapper = new ModelMapper();
+        PersonDTO dto = mapper.map(person, PersonDTO.class);
+        dto = personService.uptadePerson(dto, id);
+
+        return new ResponseEntity<>(mapper.map(dto, PersonResponse.class), HttpStatus.OK);
     }
     
 }
