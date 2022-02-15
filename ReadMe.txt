@@ -14,4 +14,10 @@ Fourth Phase: Create Controller (End Point).
         
 Fifth Phase: Create new Entity Person (Model, Repository, Service and Controller).
 
-Sixth Phase: Created exception handler w/ spring denotation to deal with errors
+Sixth Phase: Created exception handler w/ spring denotation to deal with errors.
+
+Seventh Phase: Created jdbc connection archive, appllication properties.
+
+Eight Phase: Controllers, services and respository using ModelMapping and ResponseEntity properties
+
+Ninth Phase: Insomnia tests 
