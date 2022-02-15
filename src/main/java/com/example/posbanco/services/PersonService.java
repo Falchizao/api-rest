@@ -6,6 +6,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import com.example.posbanco.model.Person;
+import com.example.posbanco.model.exception.ResourceNotFound;
 import com.example.posbanco.repository.PersonRepository;
 import com.example.posbanco.repository.PersonRepositoryOld;
 import com.example.posbanco.shared.PersonDTO;
@@ -48,8 +49,13 @@ public class PersonService {
      * @param person
      * @return the person added
      */
-    public PersonDTO addPerson(Person person){
-        return personRepository.save(person);
+    public PersonDTO addPerson(PersonDTO person){
+        ModelMapper map = new ModelMapper();
+        Person personNormal = map.map(person, Person.class);
+        personRepository.save(personNormal);
+        person.setId(personNormal.getId());
+
+        return person;
     }
 
     /**
@@ -57,7 +63,13 @@ public class PersonService {
      * @param id
      */ 
     public void deletePerson(Integer id){
-        personRepository.deleteById(id);
+        Optional<Person> person = personRepository.findById(id);
+
+        if(person.isEmpty()){ //If not found, we throw a exception
+            throw new ResourceNotFound("Person by id Not found!");
+        }
+
+        personRepository.deleteById(id);        
     }
 
     /**
@@ -66,9 +78,11 @@ public class PersonService {
      * @param id
      * @return person object
      */
-    public PersonDTO uptadePerson(Person person, Integer id){
-        person.setId(id);
-        return personRepository.save(person);
+    public PersonDTO uptadePerson(PersonDTO person, Integer id){
+        //Passar o id pro Banco, depois deletar o objeto da DB, e adicionar a nova com o body att
+        person.setId(id); //Se o spring recebe um objeto com id, significa que é para att, caso não, é pra cadastrar
+        deletePerson(id);           
+        return addPerson(person);
     }
 
     

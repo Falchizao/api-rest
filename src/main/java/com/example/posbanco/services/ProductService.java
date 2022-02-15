@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.example.posbanco.model.Product;
+import com.example.posbanco.model.exception.ResourceNotFound;
 import com.example.posbanco.repository.ProductRepository;
 import com.example.posbanco.repository.ProductRepositoryOld;
 import com.example.posbanco.shared.ProductDTO;
@@ -13,6 +14,7 @@ import com.example.posbanco.shared.ProductDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 
 @Service
 public class ProductService {
@@ -52,7 +54,13 @@ public class ProductService {
      * @return the product itself
      */
     public ProductDTO addProduct(ProductDTO product){
-        return productRepository.save(product);
+        product.setId(null);
+        ModelMapper mapper = new ModelMapper();
+        Product productNormal = mapper.map(product, Product.class);
+        productRepository.save(productNormal);
+        product.setId(productNormal.getId());
+
+        return product;
     }
 
     /**
@@ -60,6 +68,12 @@ public class ProductService {
          * @param id 
          */
     public void deleteProduct(Integer id){
+        Optional<Product> product = productRepository.findById(id);
+
+        if(product.isEmpty()){
+            throw new ResourceNotFound("Product by id not found");
+        }
+
         productRepository.deleteById(id);        
     }
 
@@ -70,7 +84,11 @@ public class ProductService {
      */
     public ProductDTO updateProduct(ProductDTO product, Integer id){
         product.setId(id);
-        return productRepository.save(product);
+        ModelMapper map = new ModelMapper();
+        Product productNormal = map.map(product, Product.class);
+
+        productRepository.save(productNormal);
+        return product;
     }    
     
 }
