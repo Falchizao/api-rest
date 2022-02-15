@@ -3,12 +3,18 @@ package com.example.posbanco.view.controller;
 import java.lang.StackWalker.Option;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.example.posbanco.model.Person;
+import com.example.posbanco.model.exception.ResourceNotFound;
 import com.example.posbanco.services.PersonService;
 import com.example.posbanco.shared.PersonDTO;
+import com.example.posbanco.view.model.PersonResponse;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,8 +36,9 @@ public class PersonController {
      * @return
      */
     @GetMapping
-    public List<PersonDTO> getPersons(){
-        return personService.getPersons();
+    public ResponseEntity<List<PersonResponse>> getPersons(){
+        List<PersonDTO> personDTOs = personService.getPersons();        
+        return new ResponseEntity<>(personDTOs.stream().map(personDTO -> new ModelMapper().map(personDTO, PersonResponse.class)).collect(Collectors.toList()), HttpStatus.OK);
     }
 
     /**
@@ -40,8 +47,13 @@ public class PersonController {
      * @return
      */
     @GetMapping("/{id}")
-    public Optional<PersonDTO> getPersonById(@PathVariable Integer id){
-        return personService.getPersonById(id);
+    public ResponseEntity<Optional<PersonResponse>> getPersonById(@PathVariable Integer id){
+
+        Optional<PersonDTO> dto = personService.getPersonById(id); //Here we need to attribute the personDTO to another variable
+        ModelMapper map = new ModelMapper(); //then we cast into Response class
+        PersonResponse person = map.map(dto, PersonResponse.class);            
+
+        return new ResponseEntity<>(Optional.of(person), HttpStatus.OK);  //Don't forget it's optional, since its looking for its id
     }
 
     /**
